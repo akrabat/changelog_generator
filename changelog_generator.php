@@ -126,7 +126,7 @@ do {
     break; // yay for tail recursion emulation =_=
 } while (true);
 
-echo "Total issues resolved: **" . count($issues) . "**" . PHP_EOL;
+echo "Total issues resolved: **" . count($issues) . "**" . PHP_EOL . PHP_EOL;
 
 $textualIssues = [];
 

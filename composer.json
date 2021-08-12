@@ -1,5 +1,5 @@
  {
-    "name": "phly/changelog-generator",
+    "name": "akrabat/changelog-generator",
     "description": "Generate Markdown changelogs from your GitHub milestones",
     "type": "library",
     "keywords": [
@@ -13,13 +13,31 @@
         "email": "matthew@weierophinney.net",
         "homepage": "http://mwop.net",
         "role": "Developer"
+      },
+      {
+        "name": "Rob Allen",
+        "email": "rob@akrabat.com",
+        "homepage": "http://akrabat.com",
+        "role": "Developer"
       }
     ],
     "bin": [
         "changelog_generator.php"
     ],
+    "config": {
+     "optimize-autoloader": true
+    },
     "require": {
-      "zendframework/zend-console": "2.*",
-      "zendframework/zend-http": "2.*"
+      "php": "^7.3 || ^8.0",
+      "ext-curl": "*",
+      "ext-json": "*"
+    },
+    "autoload": {
+      "psr-4": {
+        "App\\": "src"
+      }
+    },
+    "replace": {
+      "phly/changelog-generator": "2.*"
     }
  }

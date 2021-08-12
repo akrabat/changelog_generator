@@ -129,6 +129,7 @@ do {
 echo "Total issues resolved: **" . count($issues) . "**" . PHP_EOL . PHP_EOL;
 
 $textualIssues = [];
+$usedLabels    = [];
 
 foreach ($issues as $index => $issue) {
     $title = $issue['title'];
@@ -142,22 +143,46 @@ foreach ($issues as $index => $issue) {
         $issue['html_url'],
         $issue['user']['login']
     );
+
+    if ($config['group-by-labels']) {
+        $labelNames = array_column($issue['labels'], 'name');
+        sort($labelNames);
+        $labelNames = implode(',', $labelNames);
+
+        $usedLabels[$labelNames]         = isset($usedLabels[$labelNames]) ? $usedLabels[$labelNames] : [];
+        $usedLabels[$labelNames][$index] = $index;
+    }
 }
 
 ksort($textualIssues);
-echo implode(PHP_EOL, $textualIssues) . PHP_EOL;
+
+if ($config['group-by-labels'] === false) {
+    echo implode(PHP_EOL, $textualIssues) . PHP_EOL;
+    exit(0);
+}
+
+ksort($usedLabels);
+
+foreach ($usedLabels as $label => $indexes) {
+    if (trim($label) !== '') {
+        echo PHP_EOL . $label . PHP_EOL;
+    }
+
+    echo implode(PHP_EOL, array_intersect_key($textualIssues, $indexes)) . PHP_EOL;
+}
 
 function getConfig()
 {
     try {
         $opts = new Zend\Console\Getopt(array(
-            'help|h'        => 'Help; this usage message',
-            'config|c-s'    => 'Configuration file containing base (or all) configuration options',
-            'token|t-s'     => 'GitHub API token',
-            'user|u-s'      => 'GitHub user/organization name',
-            'repo|r-s'      => 'GitHub repository name',
-            'milestone|m-i' => 'Milestone identifier',
-            'title|v-s'     => 'Milestone title',
+            'help|h'         => 'Help; this usage message',
+            'group-labels|g' => 'Display the result grouped by labels',
+            'config|c-s'     => 'Configuration file containing base (or all) configuration options',
+            'token|t-s'      => 'GitHub API token',
+            'user|u-s'       => 'GitHub user/organization name',
+            'repo|r-s'       => 'GitHub repository name',
+            'milestone|m-i'  => 'Milestone identifier',
+            'title|v-s'      => 'Milestone title',
         ));
         $opts->parse();
     } catch (Zend\Console\Exception\ExceptionInterface $e) {
@@ -171,11 +196,12 @@ function getConfig()
     }
 
     $config = array(
-        'token'     => '',
-        'user'      => '',
-        'repo'      => '',
-        'milestone' => 0,
-        'title'     => '',
+        'token'           => '',
+        'user'            => '',
+        'repo'            => '',
+        'milestone'       => 0,
+        'title'           => '',
+        'group-by-labels' => false,
     );
 
     if (isset($opts->c)) {
@@ -217,6 +243,10 @@ function getConfig()
 
     if (isset($opts->title)) {
         $config['title'] = $opts->title;
+    }
+
+    if (isset($opts->g)) {
+        $config['group-by-labels'] = true;
     }
 
     if (

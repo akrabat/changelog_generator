@@ -378,7 +378,7 @@ function reportExistingMilestones($client, $user, $repo)
     } while (true);
 
     $milestoneList = array_slice($milestoneList, -20);
-    fwrite(STDERR, sprintf('Last 20 milestone IDs are:%s', PHP_EOL));
+    fwrite(STDERR, sprintf('Recent milestone IDs are:%s', PHP_EOL));
     foreach ($milestoneList as $milestone) {
         fwrite(STDERR, $milestone);
     }

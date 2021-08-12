@@ -351,10 +351,10 @@ function reportExistingMilestones($client, $user, $repo)
 
         foreach ($milestonesPayload as $milestone) {
             $milestoneList[] = sprintf(
-                'id: %s; title: %s; description: %s%s',
+                '%s: "%s" [%s]%s',
                 $milestone['number'],
                 $milestone['title'],
-                $milestone['description'],
+                $milestone['state'],
                 PHP_EOL
             );
         }
@@ -369,7 +369,7 @@ function reportExistingMilestones($client, $user, $repo)
     } while (true);
 
     $milestoneList = array_slice($milestoneList, -20);
-    fwrite(STDERR, sprintf('Existing milestone IDs are:%s', PHP_EOL));
+    fwrite(STDERR, sprintf('Last 20 milestone IDs are:%s', PHP_EOL));
     foreach ($milestoneList as $milestone) {
         fwrite(STDERR, $milestone);
     }

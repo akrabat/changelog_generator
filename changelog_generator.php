@@ -292,16 +292,28 @@ function getMilestonePayload($client, $user, $repo, $milestone)
  */
 function getMilestoneByTitle($client, $user, $repo, $milestoneTitle)
 {
-    $uri = "https://api.github.com/repos/$user/$repo/milestones";
+    $uri = "https://api.github.com/repos/$user/$repo/milestones?state=all";
 
-    $milestoneResponseBody = $client->send($uri)->getBody();
-    $milestonesPayload = json_decode($milestoneResponseBody, true);
+    do {
+        $response = $client->send($uri);
 
-    foreach( $milestonesPayload as $milestonePayload) {
-        if ($milestonePayload['title'] === $milestoneTitle) {
-            return $milestonePayload;
+        $milestoneResponseBody = $response->getBody();
+        $milestonesPayload = json_decode($milestoneResponseBody, true);
+
+        foreach( $milestonesPayload as $milestonePayload) {
+            if ($milestonePayload['title'] === $milestoneTitle) {
+                return $milestonePayload;
+            }
         }
-    }
+
+        $nextUri = $response->getNextLink();
+        if ($nextUri) {
+            $uri = $nextUri;
+            continue;
+        }
+
+        break;
+    } while (true);
 
     fwrite(STDERR, sprintf(
         'Provided milestone title [%s] does not exist: %s%s',

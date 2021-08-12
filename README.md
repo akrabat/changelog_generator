@@ -2,9 +2,7 @@ changelog\_generator.php
 ========================
 
 This project provides a simple way to create a markdown ordered list of issues
-and pull requests closed with a given milestone on GitHub. It uses Zend
-Framework's `Zend\Http` component to communicate with the GitHub API, and
-`Zend\Console\Getopt` to handle CLI options parsing.
+and pull requests closed with a given milestone on GitHub.
 
 The script ensures that any special characters that might break the generated
 links are scrubbed and substituted with the corresponding HTML entities; as 

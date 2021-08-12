@@ -2,11 +2,12 @@
 <?php
 /**
  * Generate a markdown changelog based on a GitHub milestone.
- *
- * @link      https://github.com/weierophinney/changelog_generator for the canonical source repository
- * @copyright Copyright (c) 2013 Matthew Weier O'Phinney (http://mwop.net/)
- * @license   https://github.com/weierophinney/changelog_generator/blob/master/LICENSE.md New BSD License
+ * Forked from https://github.com/weierophinney/changelog_generator (Copyright (c) 2013 Matthew Weier O'Phinney)
  */
+
+use App\Getopt;
+use App\HttpClient;
+
 ini_set('display_errors', true);
 error_reporting(E_ALL | E_STRICT);
 
@@ -52,15 +53,7 @@ if ($milestone != 0 && $title != '') {
     exit(1);
 }
 
-$client = new Zend\Http\Client();
-$client->setOptions(array(
-    'adapter' => 'Zend\Http\Client\Adapter\Curl',
-));
-
-$request = $client->getRequest();
-$headers = $request->getHeaders();
-
-$headers->addHeaderLine("Authorization", "token $token");
+$client = new HttpClient($token);
 
 if (!empty($title)) {
     $milestonePayload = getMilestoneByTitle($client, $user, $repo, $title);
@@ -68,20 +61,17 @@ if (!empty($title)) {
     $milestonePayload = getMilestonePayload($client, $user, $repo, $milestone);
 }
 
-$client->setUri(
-    'https://api.github.com/search/issues?q=' . urlencode(
+$uri = 'https://api.github.com/search/issues?q=' . urlencode(
         'milestone:"' . str_replace('"', '\"', $milestonePayload['title']) . '"'
         .' repo:' . $user . '/' . $repo
         . ' state:closed'
-    )
-);
+    );
 
-$client->setMethod('GET');
 $issues = array();
 $error  = false;
 
 do {
-    $response = $client->send();
+    $response = $client->send($uri);
     $json     = $response->getBody();
     $payload  = json_decode($json, true);
 
@@ -107,20 +97,10 @@ do {
         $issues[$issue['number']] = $issue;
     }
 
-    $linkHeader = $response->getHeaders()->get('Link');
-
-    if (! $linkHeader) {
-        break;
-    }
-
-    foreach (explode(', ', $linkHeader->getFieldValue()) as $link) {
-        $matches = array();
-
-        if (preg_match('#<(?P<url>.*)>; rel="next"#', $link, $matches)) {
-            $client->setUri($matches['url']);
-
-            continue 2;
-        }
+    $nextUri = $response->getNextLink();
+    if ($nextUri) {
+        $uri = $nextUri;
+        continue;
     }
 
     break; // yay for tail recursion emulation =_=
@@ -174,7 +154,7 @@ foreach ($usedLabels as $label => $indexes) {
 function getConfig()
 {
     try {
-        $opts = new Zend\Console\Getopt(array(
+        $opts = new Getopt(array(
             'help|h'         => 'Help; this usage message',
             'group-labels|g' => 'Display the result grouped by labels',
             'config|c-s'     => 'Configuration file containing base (or all) configuration options',
@@ -185,8 +165,8 @@ function getConfig()
             'title|v-s'      => 'Milestone title',
         ));
         $opts->parse();
-    } catch (Zend\Console\Exception\ExceptionInterface $e) {
-        file_put_contents('php://stderr', $e->getUsageMessage());
+    } catch (Exception $e) {
+        file_put_contents('php://stderr', $e->getMessage());
         exit(1);
     }
 
@@ -273,7 +253,7 @@ function getConfig()
 }
 
 /**
- * @param \Zend\Http\Client $client
+ * @param HttpClient $client
  * @param string $user
  * @param string $repo
  * @param int $milestone
@@ -281,9 +261,9 @@ function getConfig()
  */
 function getMilestonePayload($client, $user, $repo, $milestone)
 {
-    $client->setUri("https://api.github.com/repos/$user/$repo/milestones/$milestone");
+    $uri = "https://api.github.com/repos/$user/$repo/milestones/$milestone";
 
-    $milestoneResponseBody = $client->send()->getBody();
+    $milestoneResponseBody = $client->send($uri)->getBody();
     $milestonePayload = json_decode($milestoneResponseBody, true);
 
     if (isset($milestonePayload['title'])) {
@@ -304,7 +284,7 @@ function getMilestonePayload($client, $user, $repo, $milestone)
 }
 
 /**
- * @param \Zend\Http\Client $client
+ * @param HttpClient $client
  * @param string $user
  * @param string $repo
  * @param string $milestoneTitle
@@ -312,9 +292,9 @@ function getMilestonePayload($client, $user, $repo, $milestone)
  */
 function getMilestoneByTitle($client, $user, $repo, $milestoneTitle)
 {
-    $client->setUri("https://api.github.com/repos/$user/$repo/milestones");
+    $uri = "https://api.github.com/repos/$user/$repo/milestones";
 
-    $milestoneResponseBody = $client->send()->getBody();
+    $milestoneResponseBody = $client->send($uri)->getBody();
     $milestonesPayload = json_decode($milestoneResponseBody, true);
 
     foreach( $milestonesPayload as $milestonePayload) {
@@ -336,15 +316,15 @@ function getMilestoneByTitle($client, $user, $repo, $milestoneTitle)
 }
 
 /**
- * @param \Zend\Http\Client $client
+ * @param HttpClient $client
  * @param string $user
  * @param string $repo
  * @return void
  */
 function reportExistingMilestones($client, $user, $repo)
 {
-    $client->setUri(sprintf('https://api.github.com/repos/%s/%s/milestones', $user, $repo));
-    $milestonesResponseBody = $client->send()->getBody();
+    $uri = sprintf('https://api.github.com/repos/%s/%s/milestones', $user, $repo);
+    $milestonesResponseBody = $client->send($uri)->getBody();
     $milestonesPayload = json_decode($milestonesResponseBody, true);
 
     fwrite(STDERR, sprintf('Existing milestone IDs are:%s', PHP_EOL));

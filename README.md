@@ -7,6 +7,9 @@ The script ensures that any special characters that might break the generated
 links are scrubbed and substituted with the corresponding HTML entities; as 
 such, the script should be generally usable unattended.
 
+This is a fork of [phly/changelog-generator](https://github.com/weierophinney/changelog_generator) for use with
+more recent versions of PHP and various quality-of-life improvements.
+
 ## Installation
 
 Use [Composer](https://getcomposer.org) to install dependencies:

@@ -1,5 +1,4 @@
-changelog\_generator.php
-========================
+# changelog\_generator.php
 
 This project provides a simple way to create a markdown ordered list of issues
 and pull requests closed with a given milestone on GitHub.
@@ -8,8 +7,7 @@ The script ensures that any special characters that might break the generated
 links are scrubbed and substituted with the corresponding HTML entities; as 
 such, the script should be generally usable unattended.
 
-Installation
-------------
+## Installation
 
 Use [Composer](https://getcomposer.org) to install dependencies:
 
@@ -31,8 +29,7 @@ Add the following to your `composer.json`:
 and either perform a `composer.phar install` or `composer.phar update`. This
 will install the script in `vendor/bin/changelog_generator.php`.
 
-Usage
------
+## Usage
 
 There are two primary ways to use the generator:
 
@@ -63,3 +60,11 @@ vendor/bin/changelog_generator.php -c path/to/config.php
 
 You can also mix-and-match options -- for instance, you might place your token
 in a configuration file, and then pass the other options via CLI.
+
+### Additional options
+
+Additional CLI options control the output:
+
+- **-g** or **--group-labels**, to display the result grouped by labels
+- **-o** or **--plain-text-output**, to display the milestone titles as plain text, 
+  rather than HTML encoded

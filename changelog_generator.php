@@ -170,12 +170,12 @@ function getConfig()
         ));
         $opts->parse();
     } catch (Exception $e) {
-        file_put_contents('php://stderr', $e->getMessage());
+        file_put_contents('php://stderr', $e->getMessage() . PHP_EOL);
         exit(1);
     }
 
     if (isset($opts->h) || $opts->toArray() == array()) {
-        file_put_contents('php://stdout', $opts->getUsageMessage());
+        file_put_contents('php://stdout', $opts->getUsageMessage() . PHP_EOL);
         exit(0);
     }
 
@@ -284,9 +284,8 @@ function getMilestonePayload($client, $user, $repo, $milestone)
         fwrite(
             STDERR,
             sprintf(
-                'Provided milestone ID [%s] does not exist: %s%s',
+                'Provided milestone ID [%s] does not exist.%s',
                 $milestone,
-                $milestoneResponseBody ?: 'Unknown error',
                 PHP_EOL
             )
         );
@@ -330,9 +329,8 @@ function getMilestoneByTitle($client, $user, $repo, $milestoneTitle)
     } while (true);
 
     fwrite(STDERR, sprintf(
-        'Provided milestone title [%s] does not exist: %s%s',
+        'Provided milestone title [%s] does not exist.%s',
         $milestoneTitle,
-        $milestoneResponseBody,
         PHP_EOL
     ));
 

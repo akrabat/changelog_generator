@@ -37,12 +37,13 @@ if (empty($autoloader)) {
 }
 
 // Get configuration
-$config    = getConfig();
-$token     = $config['token'];       // Github API token
-$user      = $config['user'];        // Your user or organization
-$repo      = $config['repo'];        // The repository you're getting the changelog for
-$milestone = $config['milestone'];   // The milestone ID
-$title     = $config['title'];       // The milestone title which is often the designated version tag
+$config          = getConfig();
+$token           = $config['token'];             // Github API token
+$user            = $config['user'];              // Your user or organization
+$repo            = $config['repo'];              // The repository you're getting the changelog for
+$milestone       = $config['milestone'];         // The milestone ID
+$title           = $config['title'];             // The milestone title which is often the designated version tag
+$plainTextOutput = $config['plain-text-output']; // Display milestone titles as plain text
 
 if ($milestone != 0 && $title != '') {
     fwrite(STDERR, sprintf(
@@ -113,8 +114,10 @@ $usedLabels    = [];
 
 foreach ($issues as $index => $issue) {
     $title = $issue['title'];
-    $title = htmlentities($title, ENT_COMPAT, 'UTF-8');
-    $title = str_replace(array('[', ']', '_'), array('&#91;', '&#92;', '&#95;'), $title);
+    if ($plainTextOutput === false) {
+        $title = htmlentities($title, ENT_COMPAT, 'UTF-8');
+        $title = str_replace(array ('[', ']', '_'), array ('&#91;', '&#92;', '&#95;'), $title);
+    }
 
     $textualIssues[$index] = sprintf(
         '- [%d: %s](%s) thanks to @%s',
@@ -155,14 +158,15 @@ function getConfig()
 {
     try {
         $opts = new Getopt(array(
-            'help|h'         => 'Help; this usage message',
-            'group-labels|g' => 'Display the result grouped by labels',
-            'config|c-s'     => 'Configuration file containing base (or all) configuration options',
-            'token|t-s'      => 'GitHub API token',
-            'user|u-s'       => 'GitHub user/organization name',
-            'repo|r-s'       => 'GitHub repository name',
-            'milestone|m-i'  => 'Milestone identifier',
-            'title|v-s'      => 'Milestone title',
+            'help|h'              => 'Help; this usage message',
+            'group-labels|g'      => 'Display the result grouped by labels',
+            'config|c-s'          => 'Configuration file containing base (or all) configuration options',
+            'token|t-s'           => 'GitHub API token',
+            'user|u-s'            => 'GitHub user/organization name',
+            'repo|r-s'            => 'GitHub repository name',
+            'milestone|m-i'       => 'Milestone identifier',
+            'title|v-s'           => 'Milestone title',
+            'plain-text-output|o' => 'Display milestone titles as plain text',
         ));
         $opts->parse();
     } catch (Exception $e) {
@@ -176,12 +180,13 @@ function getConfig()
     }
 
     $config = array(
-        'token'           => '',
-        'user'            => '',
-        'repo'            => '',
-        'milestone'       => 0,
-        'title'           => '',
-        'group-by-labels' => false,
+        'token'             => '',
+        'user'              => '',
+        'repo'              => '',
+        'milestone'         => 0,
+        'title'             => '',
+        'group-by-labels'   => false,
+        'plain-text-output' => false,
     );
 
     if (isset($opts->c)) {
@@ -227,6 +232,10 @@ function getConfig()
 
     if (isset($opts->g)) {
         $config['group-by-labels'] = true;
+    }
+
+    if (isset($opts->o)) {
+        $config['plain-text-output'] = true;
     }
 
     if (

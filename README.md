@@ -12,22 +12,20 @@ such, the script should be generally usable unattended.
 Use [Composer](https://getcomposer.org) to install dependencies:
 
 ```sh
-php /path/to/composer.phar install
+$ composer require akrabat/changelog-generator
 ```
 
-Alternately, you can compose it into an existing PHP application using Composer.
-Add the following to your `composer.json`:
+This  will install the script in `vendor/bin/changelog_generator.php`.
 
-```json
-{
-    "require": {
-        "phly/changelog-generator": "*"
-    }
-}
+You can also install globally using:
+
+```sh
+composer global require akrabat/changelog-generator
 ```
 
-and either perform a `composer.phar install` or `composer.phar update`. This
-will install the script in `vendor/bin/changelog_generator.php`.
+and ensure that `~/.composer/vendor/bin` is on your PATH. The script is then
+available using `changelog_generator.php` directly.
+
 
 ## Usage
 

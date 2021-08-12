@@ -1,4 +1,6 @@
-Copyright (c) 2013, Matthew Weier O'Phinney
+Copyright (c) 2013, Matthew Weier O'Phinney  
+Copyright (c) 2021, Rob Allen  
+
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

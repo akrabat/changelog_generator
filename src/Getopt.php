@@ -727,10 +727,7 @@ class Getopt
             //make sure we've resolved the alias, if using one
             if (isset($this->ruleMap[$option]) && $option = $this->ruleMap[$option]) {
                 if (false === $callback($this->getOption($option), $this)) {
-                    throw new RuntimeException(
-                        "The option $option is invalid. See usage.",
-                        $this->getUsageMessage()
-                    );
+                    throw new RuntimeException("The option $option is invalid. See usage.");
                 }
             }
         }
@@ -791,10 +788,7 @@ class Getopt
         if (!isset($this->ruleMap[$flag])) {
             // Don't throw Exception for flag-like param in case when freeform flags are allowed
             if (!$this->getoptConfig[self::CONFIG_FREEFORM_FLAGS]) {
-                throw new RuntimeException(
-                    "Option \"$flag\" is not recognized.",
-                    $this->getUsageMessage()
-                );
+                throw new RuntimeException("Option \"$flag\" is not recognized.");
             }
 
             // Magic methods in future will use this mark as real flag value
@@ -814,10 +808,7 @@ class Getopt
                     $param = array_shift($argv);
                     $this->_checkParameterType($realFlag, $param);
                 } else {
-                    throw new RuntimeException(
-                        "Option \"$flag\" requires a parameter.",
-                        $this->getUsageMessage()
-                    );
+                    throw new RuntimeException("Option \"$flag\" requires a parameter.");
                 }
                 break;
             case 'optional':
@@ -924,18 +915,12 @@ class Getopt
         switch ($type) {
             case 'word':
                 if (preg_match('/\W/', $param)) {
-                    throw new RuntimeException(
-                        "Option \"$flag\" requires a single-word parameter, but was given \"$param\".",
-                        $this->getUsageMessage()
-                    );
+                    throw new RuntimeException("Option \"$flag\" requires a single-word parameter, but was given \"$param\".");
                 }
                 break;
             case 'integer':
                 if (preg_match('/\D/', $param)) {
-                    throw new RuntimeException(
-                        "Option \"$flag\" requires an integer parameter, but was given \"$param\".",
-                        $this->getUsageMessage()
-                    );
+                    throw new RuntimeException("Option \"$flag\" requires an integer parameter, but was given \"$param\".");
                 }
                 break;
             case 'string':
@@ -1010,17 +995,13 @@ class Getopt
                 }
                 if (strlen($flag) == 1) {
                     if (isset($this->ruleMap[$flag])) {
-                        throw new Exception\InvalidArgumentException(
-                            "Option \"-$flag\" is being defined more than once."
-                        );
+                        throw new Exception\InvalidArgumentException("Option \"-$flag\" is being defined more than once.");
                     }
                     $this->ruleMap[$flag] = $mainFlag;
                     $rule['alias'][] = $flag;
                 } else {
                     if (isset($this->rules[$flag]) || isset($this->ruleMap[$flag])) {
-                        throw new Exception\InvalidArgumentException(
-                            "Option \"--$flag\" is being defined more than once."
-                        );
+                        throw new Exception\InvalidArgumentException("Option \"--$flag\" is being defined more than once.");
                     }
                     $this->ruleMap[$flag] = $mainFlag;
                     $rule['alias'][] = $flag;

@@ -340,18 +340,37 @@ function getMilestoneByTitle($client, $user, $repo, $milestoneTitle)
  */
 function reportExistingMilestones($client, $user, $repo)
 {
-    $uri = sprintf('https://api.github.com/repos/%s/%s/milestones', $user, $repo);
-    $milestonesResponseBody = $client->send($uri)->getBody();
-    $milestonesPayload = json_decode($milestonesResponseBody, true);
+    $uri = "https://api.github.com/repos/$user/$repo/milestones?state=all";
 
+    $milestoneList = [];
+    do {
+        $response = $client->send($uri);
+
+        $milestonesResponseBody = $response->getBody();
+        $milestonesPayload = json_decode($milestonesResponseBody, true);
+
+        foreach ($milestonesPayload as $milestone) {
+            $milestoneList[] = sprintf(
+                'id: %s; title: %s; description: %s%s',
+                $milestone['number'],
+                $milestone['title'],
+                $milestone['description'],
+                PHP_EOL
+            );
+        }
+
+        $nextUri = $response->getNextLink();
+        if ($nextUri) {
+            $uri = $nextUri;
+            continue;
+        }
+
+        break;
+    } while (true);
+
+    $milestoneList = array_slice($milestoneList, -20);
     fwrite(STDERR, sprintf('Existing milestone IDs are:%s', PHP_EOL));
-    foreach ($milestonesPayload as $milestone) {
-        fwrite(STDERR, sprintf(
-            'id: %s; title: %s; description: %s%s',
-            $milestone['number'],
-            $milestone['title'],
-            $milestone['description'],
-            PHP_EOL
-        ));
+    foreach ($milestoneList as $milestone) {
+        fwrite(STDERR, $milestone);
     }
 }

@@ -261,22 +261,27 @@ function getConfig()
  */
 function getMilestonePayload($client, $user, $repo, $milestone)
 {
-    $uri = "https://api.github.com/repos/$user/$repo/milestones/$milestone";
+    if ($milestone > 0) {
+        $uri = "https://api.github.com/repos/$user/$repo/milestones/$milestone";
 
-    $milestoneResponseBody = $client->send($uri)->getBody();
-    $milestonePayload = json_decode($milestoneResponseBody, true);
+        $milestoneResponseBody = $client->send($uri)->getBody();
+        $milestonePayload = json_decode($milestoneResponseBody, true);
 
-    if (isset($milestonePayload['title'])) {
-        return $milestonePayload;
+        if (isset($milestonePayload['title'])) {
+            return $milestonePayload;
+        }
+
+        // Milestone not located; report errors and potential matches
+        fwrite(
+            STDERR,
+            sprintf(
+                'Provided milestone ID [%s] does not exist: %s%s',
+                $milestone,
+                $milestoneResponseBody ?: 'Unknown error',
+                PHP_EOL
+            )
+        );
     }
-
-    // Milestone not located; report errors and potential matches
-    fwrite(STDERR, sprintf(
-        'Provided milestone ID [%s] does not exist: %s%s',
-        $milestone,
-        $milestoneResponseBody ?: 'Unknown error',
-        PHP_EOL
-    ));
 
     reportExistingMilestones($client, $user, $repo);
 

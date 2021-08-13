@@ -995,13 +995,13 @@ class Getopt
                 }
                 if (strlen($flag) == 1) {
                     if (isset($this->ruleMap[$flag])) {
-                        throw new Exception\InvalidArgumentException("Option \"-$flag\" is being defined more than once.");
+                        throw new \InvalidArgumentException("Option \"-$flag\" is being defined more than once.");
                     }
                     $this->ruleMap[$flag] = $mainFlag;
                     $rule['alias'][] = $flag;
                 } else {
                     if (isset($this->rules[$flag]) || isset($this->ruleMap[$flag])) {
-                        throw new Exception\InvalidArgumentException("Option \"--$flag\" is being defined more than once.");
+                        throw new \InvalidArgumentException("Option \"--$flag\" is being defined more than once.");
                     }
                     $this->ruleMap[$flag] = $mainFlag;
                     $rule['alias'][] = $flag;

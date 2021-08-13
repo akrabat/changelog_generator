@@ -1,4 +1,4 @@
- {
+{
     "name": "akrabat/changelog-generator",
     "description": "Generate Markdown changelogs from your GitHub milestones",
     "type": "library",
@@ -39,5 +39,8 @@
     },
     "replace": {
       "phly/changelog-generator": "2.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
     }
- }
+}

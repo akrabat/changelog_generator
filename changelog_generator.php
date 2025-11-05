@@ -9,7 +9,7 @@ use App\Getopt;
 use App\HttpClient;
 
 ini_set('display_errors', true);
-error_reporting(E_ALL | E_STRICT);
+error_reporting(E_ALL);
 
 // Autoloading based on phpunit's approach
 $autoloadLocations = array(
